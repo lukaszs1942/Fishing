@@ -19,24 +19,26 @@
         var ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
         webSockets.push(ws);
 
-        ws.addEventListener('message', function(event) {
-            // Check if the message might be valid JSON (e.g., starts with '{' after removing two characters)
-            if (event.data.slice(2).trim().startsWith('{')) {
-                try {
-                    // Remove the first two characters and parse the rest as JSON
-                    var jsonData = JSON.parse(event.data.slice(2));
-                    console.log('Raw message data:', event.data);
-                    // Process the JSON data as needed
-                    // (add your conditions and logic here)
-
-                } catch (e) {
-                    console.error('Error processing JSON message:', e);
-                }
-            } else {
-                // If not JSON, you can log or ignore these messages
-
+ws.addEventListener('message', function(event) {
+    // Check if the message might be valid JSON (e.g., starts with '{' after removing two characters)
+    if (event.data.slice(2).trim().startsWith('{')) {
+        try {
+            // Remove the first two characters and parse the rest as JSON
+            var jsonData = JSON.parse(event.data.slice(2));
+            console.log('Raw message data:', event.data);
+            // Check for "onTheLine": "*" in the JSON data
+            if (event.data.slice(2).includes("onTheLine")) {
+                console.log('Special Condition Met:', event.data);
+                sendMessage('reel');
             }
-        });
+
+        } catch (e) {
+            console.error('Error processing JSON message:', e);
+        }
+    } else {
+        // If not JSON, you can log or ignore these messages
+    }
+});
 
         return ws;
     };

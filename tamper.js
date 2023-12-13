@@ -22,8 +22,12 @@
                 // If the current value is an object, recursively search it
                 searchOnTheLine(obj[key]);
             } else if (key === 'onTheLine') {
-                // If the key is 'onTheLine', log its value
-                console.log('Found "onTheLine" value:', obj[key]);
+                // If the key is 'onTheLine', check its value
+                if (obj[key] !== false) {
+                    console.log('Found "onTheLine"', obj[key]);
+                    // If the value is not false, send a "cast" message
+                    sendMessage('reel');
+                }
             }
         }
     }
@@ -37,6 +41,7 @@ ws.addEventListener('message', function(event) {
         try {
             // Remove the first two characters and parse the rest as JSON
             var jsonData = JSON.parse(event.data.slice(2))
+
                 // Search for "onTheLine" anywhere in the JSON structure
                 searchOnTheLine(jsonData);
 

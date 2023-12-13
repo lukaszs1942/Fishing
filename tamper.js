@@ -15,6 +15,18 @@
     var OriginalWebSocket = window.WebSocket;
     var webSockets = [];
 
+
+    function searchOnTheLine(obj) {
+        for (var key in obj) {
+            if (typeof obj[key] === 'object') {
+                // If the current value is an object, recursively search it
+                searchOnTheLine(obj[key]);
+            } else if (key === 'onTheLine') {
+                // If the key is 'onTheLine', log its value
+                console.log('Found "onTheLine" value:', obj[key]);
+            }
+        }
+    }
     window.WebSocket = function(url, protocols) {
         var ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
         webSockets.push(ws);
@@ -24,13 +36,9 @@ ws.addEventListener('message', function(event) {
     if (event.data.slice(2).trim().startsWith('{')) {
         try {
             // Remove the first two characters and parse the rest as JSON
-            var jsonData = JSON.parse(event.data.slice(2));
-            console.log('Raw message data:', event.data);
-            // Check for "onTheLine": "*" in the JSON data
-            if (event.data.slice(2).includes("onTheLine")) {
-                console.log('Special Condition Met:', event.data);
-                sendMessage('reel');
-            }
+            var jsonData = JSON.parse(event.data.slice(2))
+                // Search for "onTheLine" anywhere in the JSON structure
+                searchOnTheLine(jsonData);
 
         } catch (e) {
             console.error('Error processing JSON message:', e);

@@ -15,46 +15,57 @@
     var OriginalWebSocket = window.WebSocket;
     var webSockets = [];
 
+    var reelSent = false;
 
-    function searchOnTheLine(obj) {
-        for (var key in obj) {
-            if (typeof obj[key] === 'object') {
-                // If the current value is an object, recursively search it
-                searchOnTheLine(obj[key]);
-            } else if (key === 'onTheLine') {
-                // If the key is 'onTheLine', check its value
-                if (obj[key] !== false) {
-                    console.log('Found "onTheLine"', obj[key]);
-                    // If the value is not false, send a "cast" message
-                    sendMessage('reel');
-                }
+function searchOnTheLine(obj) {
+    for (var key in obj) {
+        if (typeof obj[key] === 'object') {
+            // If the current value is an object, recursively search it
+            searchOnTheLine(obj[key]);
+        } else if (key === 'onTheLine') {
+            // If the key is 'onTheLine', check its value
+            if (obj[key] !== false) {
+                console.log('Found "onTheLine"', obj[key]);
+                // If the value is not false, send a "cast" message
+                sendMessage('reel');
+                reelSent = true;
+
+                // Set a timeout to send "cast" 5 seconds after sending "reel"
+                setTimeout(function () {
+                    if (reelSent) {
+                        sendMessage('cast');
+                        console.log("Ruszam na lowy");
+                    }
+                }, 5000);
             }
         }
     }
-    window.WebSocket = function(url, protocols) {
-        var ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
-        webSockets.push(ws);
+}
 
-ws.addEventListener('message', function(event) {
-    // Check if the message might be valid JSON (e.g., starts with '{' after removing two characters)
-    if (event.data.slice(2).trim().startsWith('{')) {
-        try {
-            // Remove the first two characters and parse the rest as JSON
-            var jsonData = JSON.parse(event.data.slice(2))
+window.WebSocket = function(url, protocols) {
+    var ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
+    webSockets.push(ws);
+
+    ws.addEventListener('message', function(event) {
+        // Check if the message might be valid JSON (e.g., starts with '{' after removing two characters)
+        if (event.data.slice(2).trim().startsWith('{')) {
+            try {
+                // Remove the first two characters and parse the rest as JSON
+                var jsonData = JSON.parse(event.data.slice(2))
 
                 // Search for "onTheLine" anywhere in the JSON structure
                 searchOnTheLine(jsonData);
 
-        } catch (e) {
-            console.error('Error processing JSON message:', e);
+            } catch (e) {
+                console.error('Error processing JSON message:', e);
+            }
+        } else {
+            // If not JSON, you can log or ignore these messages
         }
-    } else {
-        // If not JSON, you can log or ignore these messages
-    }
-});
+    });
 
-        return ws;
-    };
+    return ws;
+};
 
     for (var prop in OriginalWebSocket) {
         if (OriginalWebSocket.hasOwnProperty(prop)) {

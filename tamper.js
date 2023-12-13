@@ -15,7 +15,7 @@
     var OriginalWebSocket = window.WebSocket;
     var webSockets = [];
 
-    var reelSent = false;
+var reelSent = false;
 
 function searchOnTheLine(obj) {
     for (var key in obj) {
